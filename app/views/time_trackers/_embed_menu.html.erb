@@ -1,0 +1,30 @@
+<% time_tracker = User.current.time_tracker %>
+<% if time_tracker %>
+  <% if time_tracker.paused %>
+    <%# A time tracker is in pause, display the tracked issue, the time spent and the resume/stop actions %>
+    <%= link_to "##{time_tracker.issue_id.to_s}", issue_path(time_tracker.issue_id), :class => 'icon icon-pause' %>
+    / <%= time_tracker.time_spent_to_s %> /
+    <%= link_to '', time_trackers_resume_path, :class => 'icon-action icon-start-action', :title => l(:resume_time_tracker), remote: true %>
+    <%= link_to '', time_trackers_stop_path, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
+  <% else %>
+    <%# A time tracker is running, display the tracked issue, the time spent and the suspend/stop actions %>
+    <%= link_to '#' + time_tracker.issue_id.to_s, issue_path(time_tracker.issue_id), :class => 'icon icon-clock' %>
+    / <%= time_tracker.time_spent_to_s %> /
+    <%= link_to '', time_trackers_suspend_path, :class => 'icon-action icon-pause-action', :title => l(:suspend_time_tracker), remote: true %>
+    <%= link_to '', time_trackers_stop_path, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
+  <% end %>
+<% elsif @project and User.current.allowed_to?(:log_time, @project) and @issue.try(:persisted?) %>
+  <%# No time tracker is running, but the user look at an issue and he has the rights to track time on it %>
+  <%# Display the start time tracker action on this issue %>
+  <%= link_to "#{l(:start_time_tracker)} ##{@issue.id.to_s}", time_trackers_start_path(:issue_id => @issue.id) , :class => 'icon icon-start', remote: true %>
+<% else %>
+  <%# No time tracker is running but the user has the rights to track time on a project %>
+  <%# Display the "Not running" entry %>
+  <span class='icon icon-time'><%= l(:time_tracker_not_running) %>&nbsp;</span>
+<% end %>
+
+<% if User.current.allowed_to?(:log_time, nil, :global => true) or User.current.allowed_to?(:view_others_time_trackers, nil, :global => true) %>
+  <span>
+    <%= link_to '', time_trackers_path, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers) %>
+  </span>
+<% end %>

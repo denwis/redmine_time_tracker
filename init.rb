@@ -1,6 +1,18 @@
+# encoding: utf-8
 require 'redmine'
 
-require_dependency 'time_tracker_hooks'
+class TimeTrackerRailtie < Rails::Railtie
+  config.to_prepare do
+    require_dependency 'time_tracker_hooks'
+    require_dependency 'project'
+    require_dependency 'principal'
+    require_dependency 'user'
+    User.send(:include, TimeTrackerPlugin::Patches::UserPatch)
+  end
+end
+
+
+
 
 Redmine::Plugin.register :redmine_time_tracker do
     name 'Redmine Time Tracker plugin'

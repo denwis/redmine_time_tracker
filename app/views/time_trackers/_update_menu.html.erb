@@ -1,0 +1,22 @@
+<% if User.current.logged? %>
+
+  <!--
+  This script replaces the <a id="time-tracker-menu">...</a> element by a span with the same id.
+  This is needed as we want several links for our time tracker menu item.
+  The span is populated with current time tracker state.
+  (no AJAX request here, this allows to have the time tracker immediately visible)
+  -->
+
+  <div id="misplaced-menu">
+    <span id="time-tracker-menu" class="time-tracker-menu">
+        <%= render :partial => 'time_trackers/embed_menu' %>
+      </span>
+  </div>
+
+
+  <!--
+  Used by updateTimeTrackerMenu() function which will update the time tracker menu item using an AJAX request to retrieve the data
+  -->
+  <%= content_tag :div, "", { id: 'time_tracker_info', data: { project_id: @project.try(:id), issue_id: @issue.try(:id), refresh_rate: Setting.plugin_redmine_time_tracker['refresh_rate'] } } %>
+
+<% end %>
