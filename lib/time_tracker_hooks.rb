@@ -8,4 +8,11 @@ class TimeTrackerHooks < Redmine::Hook::ViewListener
         js = javascript_include_tag 'time_tracker.js', :plugin => 'redmine_time_tracker'
         css + js
     end
+
+#    def controller_issues_edit_after_save(context = {})
+#        unless context[:time_entry].nil?
+#          tt = TimeTracker.find(:first, :conditions => { :user_id => User.current.id, :issue_id => context[:issue].id })
+#          tt.destroy unless tt.nil?
+#        end
+#    end
 end

@@ -1,0 +1,31 @@
+<% unless @filtered_issues.nil? %>
+  <div class="autoscroll" id="user-issues-list">
+    <table class="list">
+      <thead>
+        <tr>
+          <th class="issue"><%= l(:label_issue) %></th>
+          <th class="buttons"><%= l(:time_tracker_label_action) %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @filtered_issues.each do |issue| %>
+          <tr id="user-timetracker<%= issue.id %>" class="<%= cycle('odd', 'even') %>">
+            <td class="issue"><%= link_to_issue issue, :project => true %></td>
+            <td class="buttons">
+              <% if @issue.nil? %>
+                <%= link_to l(:start_time_tracker),
+                  { :controller => 'time_trackers', :action => 'start', :issue_id => issue.id },
+                  :class => 'icon icon-start'%>
+              <% else %>
+                <%= link_to l(:button_save).capitalize+ ' & ' + l(:start_time_tracker),
+                  '#', :remote => true, :class => 'icon icon-start', 
+                   :onclick => "document.forms['issue-compact-form'].start_tracker.value=#{issue.id};document.forms['issue-compact-form'].submit();"
+              %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

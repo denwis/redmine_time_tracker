@@ -1,0 +1,5 @@
+$('#ajax-modal').html('<%= escape_javascript(render :partial => 'time_trackers/index_modal', :locals => {:filtered_issues => @filtered_issues}) %>');
+showModal('ajax-modal', '750px');
+var element = document.getElementById('ui-dialog-title-ajax-modal');
+element.innerHTML="<%= @issue.nil? ? l(:start_time_tracker).capitalize : @issue %>";
+$('#ajax-modal').addClass('time-trackers-index');

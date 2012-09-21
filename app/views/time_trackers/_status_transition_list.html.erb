@@ -23,8 +23,8 @@
                 <% else %>
                     <% transitions.each do |from, to| %>
                         <tr class="<%=cycle('odd', 'even') %>">
-                            <% status_from = status_from_id(from) %>
-                            <% status_to = status_from_id(to) %>
+                            <% status_from =  IssueStatus.find(:first, :conditions => { :id => from }) %>
+                            <% status_to = IssueStatus.find(:first, :conditions => { :id => to }) %>
                             <% if status_from.nil? or status_to.nil? %>
                                 <% has_zombie = true %>
                                 <td class="zombie icon icon-warning"></td>
@@ -40,10 +40,11 @@
                             </td>
                             <% if edit_allowed %>
                                 <td class="buttons">
-                                    <%= link_to_remote l(:time_tracker_label_delete),
-                                        :url => { :controller => '/time_trackers', :action => 'delete_status_transition', :transitions => transitions, :from_id => from },
-                                        :html => { :class => 'icon icon-del' },
-                                        :complete => "$('status-transition-list').replace(request.responseText);"
+                                    <%= link_to l(:time_tracker_label_delete),
+                                         { :controller => '/time_trackers', :action => 'delete_status_transition', :transitions => transitions, :from_id => from },
+                                         :remote => true,
+                                         :html_options => { :class => 'icon icon-del' },
+                                         :complete => "$('status-transition-list').replace(request.responseText);"
                                     %>
                                 </td>
                             <% end %>

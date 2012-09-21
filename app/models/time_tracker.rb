@@ -9,8 +9,8 @@ def help
 end
 
 class TimeTracker < ActiveRecord::Base
-    belongs_to :user
-    has_one :issue
+  belongs_to :issue
+  belongs_to :user
 
     validates_presence_of :issue_id
 
