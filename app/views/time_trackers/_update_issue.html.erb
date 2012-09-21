@@ -50,7 +50,7 @@
   <%= f.hidden_field :id %>
   <%= hidden_field_tag 'last_journal_id', params[:last_journal_id] || @issue.last_journal_id %>
   
-  <%= text_field_tag "start_tracker","" %>
+  <%= hidden_field_tag "start_tracker","" %>
   
 <% end %>
 

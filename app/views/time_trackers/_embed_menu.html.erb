@@ -12,10 +12,8 @@
     / <%= time_tracker.time_spent_to_s %> /
     <%= link_to '', time_trackers_suspend_path, :class => 'icon-action icon-pause-action', :title => l(:suspend_time_tracker) %>
     <%= link_to '', 
-      {:controller => 'time_trackers', :action => 'index', :issues_by => "all"},
-      :remote => true,
-      :method => 'get',
-      :before => "if ($('ajax-modal').hasClass('time-trackers-index')) {showModal('ajax-modal'); return false;}",
+      {:controller => 'time_trackers', :action => 'index'},
+      :remote => true, :method => 'get',
       :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker)
     %>
 
@@ -32,13 +30,6 @@
 
 <% if User.current.allowed_to?(:log_time, nil, :global => true) or User.current.allowed_to?(:view_others_time_trackers, nil, :global => true) %>
   <span>
-    <%= link_to '', time_trackers_path, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers) %>
-  </span>
-  <span>
-    <%= link_to '###',
-      {:controller => 'time_trackers', :action => 'index'},
-      :remote => true, :method => 'get',
-      :before => "if ($('ajax-modal').hasClass('time-trackers-index')) {showModal('ajax-modal'); return false;}"
-    %>
+    <%= link_to '', time_trackers_path, :remote => true, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers) %>
   </span>
 <% end %>
