@@ -1,17 +1,21 @@
 class TimeTrackersController < ApplicationController
+
+  helper :time_trackers
+  include TimeTrackersHelper
+    
   unloadable
 
   def index
     unless User.current.nil?
-      @time_tracker = current
-      unless @time_tracker.nil?
+      @time_tracker = User.current.time_tracker
+      unless @time_tracker.nil? || params[:stop].nil?
         @time_tracker.issue_id = params[:issue_id] unless params[:issue_id].nil?
         # -- Issue update form fields
         @issue = Issue.find(:first, :conditions => { :id => @time_tracker.issue_id })
         @project = Project.find(:first, :conditions => { :id => @issue.project_id })
         @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
         @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
-        @time_entry.hours = @time_tracker.hours_spent.round(2)
+        @time_entry.hours = round_hours(@time_tracker.hours_spent)
         @notes = ""
         @private_message = false
         @issue.init_journal(User.current, @notes, @private_message)
@@ -34,14 +38,13 @@ class TimeTrackersController < ApplicationController
   end
 
   def start
-    @time_tracker = current
+    @time_tracker = User.current.time_tracker
     unless @time_tracker.nil?
-      spent = @time_tracker.hours_spent
+      spent = round_hours(@time_tracker.hours_spent)
       unless spent.nil? || spent == 0
         # save current time_tracker's spent hours automatically before switching to other task
         @time_entry = TimeEntry.new(:issue => @time_tracker.issue, :project => @time_tracker.issue.project,
-          :user => @time_tracker.user, :spent_on => Time.now)
-        @time_entry.hours = spent.round(2)
+          :user => @time_tracker.user, :spent_on => Time.now, :hours => spent)
         @time_entry.save!
       end
       @time_tracker.destroy
@@ -57,7 +60,7 @@ class TimeTrackersController < ApplicationController
   end
 
   def resume
-    @time_tracker = current
+    @time_tracker = User.current.time_tracker
     if @time_tracker.nil? or not @time_tracker.paused
       flash[:error] = l(:no_time_tracker_suspended)
       redirect_to :back
@@ -65,7 +68,6 @@ class TimeTrackersController < ApplicationController
       @time_tracker.started_on = Time.now
       @time_tracker.paused = false
       if @time_tracker.save
-        #        render :update_menu
         redirect_back_or_default({:controller => 'issues', :action => 'show', :id => @time_tracker.issue_id})
       else
         flash[:error] = l(:resume_time_tracker_error)
@@ -74,16 +76,21 @@ class TimeTrackersController < ApplicationController
   end
 
   def suspend
-    @time_tracker = current
+    @time_tracker = User.current.time_tracker
+    ok = true;
     if @time_tracker.nil? or @time_tracker.paused
       flash[:error] = l(:no_time_tracker_running)
       redirect_to :back
     else
       @time_tracker.time_spent = @time_tracker.hours_spent
+      if @time_tracker.hours_spent > 0
+        issue = Issue.find(:first, :conditions => { :id => @time_tracker.issue_id })
+        time_entry = TimeEntry.new(:issue => issue, :project => issue.project, :user => User.current,
+          :spent_on => User.current.today, :hours => round_hours(@time_tracker.hours_spent))
+        ok = time_entry.save
+      end
       @time_tracker.paused = true
-      if @time_tracker.save
-        #render :update_menu
-        #redirect_back_or_default({:controller => 'issues', :action => 'index', :project_id => @project})
+      if ok && @time_tracker.save
         redirect_to :back
       else
         flash[:error] = l(:suspend_time_tracker_error)
@@ -100,7 +107,7 @@ class TimeTrackersController < ApplicationController
       @issue.init_journal(User.current, @notes, @private_message)
       @issue.safe_attributes = params[:issue]
       @issue.save_issue_with_child_records(params, nil)
-      time_tracker = current
+      time_tracker = User.current.time_tracker
       time_tracker.destroy unless time_tracker.nil?
     end
     if params[:start_tracker] && params[:start_tracker].present?
@@ -127,10 +134,6 @@ class TimeTrackersController < ApplicationController
   end
 
   protected
-
-  def current
-    TimeTracker.find(:first, :conditions => { :user_id => User.current.id })
-  end
 
   def apply_status_transition(issue)
     new_status_id = Setting.plugin_redmine_time_tracker['status_transitions'][issue.status_id.to_s]

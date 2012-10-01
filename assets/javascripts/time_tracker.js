@@ -47,3 +47,16 @@ function addTransitionField() {
     var new_tag = '<input type="hidden" id="settings_status_transition_'+ from_id + '" name="settings[status_transitions][' + from_id + ']" value="' + to_id + '">';
     elem.innerHTML= new_tag;
 }
+
+// Add contextual button to issue for starting task.
+$(document).ready( function() {
+      var areas = $('div#content>div.contextual').find('a.icon-time-add');
+      var startButtonTemplate = $('a.time-tracker-start')[0];
+	for (ai = 0; ai < areas.length; ai++) {
+		var area = areas[ai];
+		var startButton = startButtonTemplate.cloneNode(true);
+		startButton.style.display = 'inline';
+		$(startButton).insertBefore(area);
+	}
+});
+

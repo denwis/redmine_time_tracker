@@ -1,0 +1,5 @@
+<% if User.current.time_tracker.nil? || User.current.time_tracker.issue_id != @issue.id %>
+  <%= link_to l(:start_time_tracker).capitalize + ' #' + @issue.id.to_s + ' ', time_trackers_start_path(:issue_id => @issue.id) , :class => 'icon icon-start time-tracker-start' %>
+<% end %>
+
+
