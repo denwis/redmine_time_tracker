@@ -5,7 +5,7 @@
     <%= link_to "##{time_tracker.issue_id.to_s}", issue_path(time_tracker.issue_id), :class => 'icon icon-pause' %>
     / <%= time_tracker.time_spent_to_s %> /
     <%= link_to '', time_trackers_resume_path, :class => 'icon-action icon-start-action', :title => l(:resume_time_tracker) %>
-    <%= link_to '', time_trackers_stop_path, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
+    <%= link_to '', time_trackers_stop_path, :remote => true, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
   <% else %>
     <%# A time tracker is running, display the tracked issue, the time spent and the suspend/stop actions %>
     <%= link_to '#' + time_tracker.issue_id.to_s, issue_path(time_tracker.issue_id), :class => 'icon icon-clock' %>

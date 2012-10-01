@@ -1,15 +1,8 @@
 # encoding: utf-8
 require 'redmine'
 
-class TimeTrackerRailtie < Rails::Railtie
-  config.to_prepare do
-    require_dependency 'time_tracker_hooks'
-    require_dependency 'project'
-    require_dependency 'principal'
-    require_dependency 'user'
-    User.send(:include, TimeTrackerPlugin::Patches::UserPatch)
-  end
-end
+require_dependency 'time_tracker_hooks'
+require 'tt_user_patch'
 
 # workaround helping rails to find the helper-methods
 require File.join(File.dirname(__FILE__), "app", "helpers", "application_helper.rb")
