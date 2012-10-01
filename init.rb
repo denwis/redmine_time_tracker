@@ -11,8 +11,8 @@ class TimeTrackerRailtie < Rails::Railtie
   end
 end
 
-
-
+# workaround helping rails to find the helper-methods
+require File.join(File.dirname(__FILE__), "app", "helpers", "application_helper.rb")
 
 Redmine::Plugin.register :redmine_time_tracker do
     name 'Redmine Time Tracker plugin'

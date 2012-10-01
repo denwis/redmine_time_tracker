@@ -126,40 +126,10 @@ class TimeTrackersController < ApplicationController
     render :partial => 'embed_menu'
   end
 
-  def add_status_transition
-    transitions = params[:transitions].nil? ? { } : params[:transitions]
-    transitions[params[:from_id]] = params[:to_id]
-
-    render :partial => 'status_transition_list', :locals => { :transitions => transitions }
-  end
-
-  def delete_status_transition
-    transitions = params[:transitions].nil? ? { } : params[:transitions]
-    transitions.delete(params[:from_id])
-
-    render :partial => 'status_transition_list', :locals => { :transitions => transitions }
-  end
-
   protected
 
   def current
     TimeTracker.find(:first, :conditions => { :user_id => User.current.id })
-  end
-
-  def fill_spent_hours
-    unless @time_tracker.nil?
-      # -- Issue update form fields
-      @issue = Issue.find(:first, :conditions => { :id => @time_tracker.issue_id })
-      @project = Project.find(:first, :conditions => { :id => @issue.project_id })
-      @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
-      @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
-      @time_entry.hours = @time_tracker.hours_spent.round(2)
-      @notes = ""
-      @private_message = false
-      @issue.init_journal(User.current, @notes, @private_message)
-      @priorities = IssuePriority.active
-      @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
-    end
   end
 
   def apply_status_transition(issue)

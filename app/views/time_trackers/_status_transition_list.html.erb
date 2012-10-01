@@ -41,10 +41,10 @@
                             <% if edit_allowed %>
                                 <td class="buttons">
                                     <%= link_to l(:time_tracker_label_delete),
-                                         { :controller => '/time_trackers', :action => 'delete_status_transition', :transitions => transitions, :from_id => from },
+                                         '#',
                                          :remote => true,
-                                         :html_options => { :class => 'icon icon-del' },
-                                         :complete => "$('status-transition-list').replace(request.responseText);"
+                                         :onclick => "deleteTransitionField(#{from.to_s});$('form').submit();",
+                                         :html_options => { :class => 'icon icon-del' }
                                     %>
                                 </td>
                             <% end %>
@@ -60,16 +60,17 @@
     <% end %>
 
     <% if edit_allowed %>
-        <div>
+        <div id="add-transition">
             <%= label_tag 'new-transition-from', l(:time_tracker_settings_new_transition_from) %>
             <%= select_tag 'new-transition-from', new_transition_from_options(transitions) %>
             <%= label_tag 'new-transition-to', l(:time_tracker_settings_new_transition_to) %>
             <%= select_tag 'new-transition-to', new_transition_to_options %>
-            <%= link_to_remote l(:time_tracker_settings_new_transition_add),
-                :url => { :controller => '/time_trackers', :action => 'add_status_transition', :transitions => transitions },
-                :with => "'from_id=' + $('new-transition-from').value + '&to_id=' + $('new-transition-to').value",
+            <%= link_to l(:time_tracker_settings_new_transition_add),
+                '#', 
+                :remote => true,
+                :onclick => "addTransitionField();$('form').submit();",
                 :html => { :class => 'icon icon-add' },
-                :complete => "$('status-transition-list').replace(request.responseText);"
+                :id => 'link-add-transition'
             %>
         </div>
     <% end %>
