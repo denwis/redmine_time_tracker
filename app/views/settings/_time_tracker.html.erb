@@ -14,6 +14,11 @@
       check_box_tag('settings[add_to_watchers]', 1, @settings['add_to_watchers']=="1").html_safe %>
   </p>
   <p>
+      <%= label_tag('settings[auto_assign_user_on_start]', l(:time_tracker_settings_auto_assign_user_on_start)).html_safe +
+      hidden_field_tag("settings[auto_assign_user_on_start]", 0, :id => nil).html_safe +
+      check_box_tag('settings[auto_assign_user_on_start]', 1, @settings['auto_assign_user_on_start']=="1").html_safe %>
+  </p>
+  <p>
       <%= label_tag('settings[warning_not_running]', l(:time_tracker_settings_warning_not_running)).html_safe +
       hidden_field_tag("settings[warning_not_running]", 0, :id => nil).html_safe +
       check_box_tag('settings[warning_not_running]', 1, @settings['warning_not_running']=="1").html_safe %>

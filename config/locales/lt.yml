@@ -20,7 +20,7 @@ lt:
   time_tracker_label_action: "Veiksmas"
   time_tracker_label_delete: "Trinti"
   time_tracker_label_start_date: "Pradž. data"
-  time_tracker_label_transition_journal: "Užduoties statusas pakeistas automatiškai startavus laikmačiui."
+  time_tracker_label_transition_journal: "Užduotis pakeista automatiškai startavus laikmačiui. Task updated automatically due to the start of a time tracker."
   time_tracker_label_your_time_trackers: "Jūsų laikmačiai"
   time_tracker_label_other_time_trackers: "Kitų vartotojų laikmačiai"
   time_tracker_list_title: "Laikmačiai"

@@ -52,8 +52,7 @@ class TimeTrackersController < ApplicationController
     @issue = Issue.find(:first, :conditions => { :id => params[:issue_id] })
     @time_tracker = TimeTracker.new({ :issue_id => @issue.id })
     if @time_tracker.save
-      apply_status_transition unless Setting.plugin_redmine_time_tracker['status_transitions'] == nil
-      add_to_watchers
+      apply_issue_changes_on_start
       redirect_to :controller => 'issues', :action => 'show', :id => params[:issue_id]
     else
       flash[:error] = l(:start_time_tracker_error)
@@ -136,22 +135,32 @@ class TimeTrackersController < ApplicationController
 
   protected
 
-  def apply_status_transition
-    new_status_id = Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]
-    new_status = IssueStatus.find(:first, :conditions => { :id => new_status_id })
-    if @issue.new_statuses_allowed_to(User.current).include?(new_status)
-      @issue.init_journal(User.current, notes = l(:time_tracker_label_transition_journal))
-      @issue.status_id = new_status_id
-      @issue.save
+  def apply_issue_changes_on_start
+    # Change issue status
+    have_changes = false
+    unless Setting.plugin_redmine_time_tracker['status_transitions'] == nil
+      new_status_id = Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]
+      new_status = IssueStatus.find(:first, :conditions => { :id => new_status_id })
+      if @issue.new_statuses_allowed_to(User.current).include?(new_status)
+        @current_journal = @issue.init_journal(User.current, l(:time_tracker_label_transition_journal))
+        @issue.status_id = new_status_id
+        have_changes = true;
+      end
     end
-  end
-
-  def add_to_watchers
     # Add to watchers when starting timer
     if Setting.plugin_redmine_time_tracker['add_to_watchers'] == '1' &&
         !@issue.watched_by?(User.current) && User.current.allowed_to?("add_#{@issue.class.name.underscore}_watchers".to_sym, @issue.project)
       @issue.add_watcher(User.current)
-      @issue.save!
+      have_changes = true;
     end
+    # Assign to user
+    if Setting.plugin_redmine_time_tracker['auto_assign_user_on_start'] == '1' &&
+        @issue.assigned_to != User.current.id && User.current.allowed_to?("edit_#{@issue.class.name.underscore}s".to_sym, @issue.project)
+      @issue.init_journal(User.current, l(:time_tracker_label_transition_journal)) if @current_journal.nil?
+      @issue.assigned_to = User.current
+      have_changes = true;
+    end
+    @issue.save if have_changes;
   end
+
 end
