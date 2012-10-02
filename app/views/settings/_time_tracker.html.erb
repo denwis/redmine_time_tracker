@@ -2,20 +2,30 @@
 
 <h3><%= l(:time_tracker_settings_general_title) %></h3>
 
-<div class="box tabular">
-    <p>
-        <%= label_tag 'settings[refresh_rate]', l(:time_tracker_refresh_rate) %>
-        <%= text_field_tag 'settings[refresh_rate]', @settings['refresh_rate'], { :size => 4 } %>
-        (<%= l(:time_tracker_seconds) %>)
-    </p>
+<div class="box tabular settings">
+  <p>
+    <%= label_tag 'settings[refresh_rate]', l(:time_tracker_refresh_rate) %>
+    <%= text_field_tag 'settings[refresh_rate]', @settings['refresh_rate'], { :size => 4 } %>
+    (<%= l(:time_tracker_seconds) %>)
+  </p>
+  <p>
+    <%= label_tag('settings[add_to_watchers]', l(:time_tracker_settings_add_to_watchers)).html_safe +
+      hidden_field_tag("settings[add_to_watchers]", 0, :id => nil).html_safe +
+      check_box_tag('settings[add_to_watchers]', 1, @settings['add_to_watchers']=="1").html_safe %>
+  </p>
+  <p>
+      <%= label_tag('settings[warning_not_running]', l(:time_tracker_settings_warning_not_running)).html_safe +
+      hidden_field_tag("settings[warning_not_running]", 0, :id => nil).html_safe +
+      check_box_tag('settings[warning_not_running]', 1, @settings['warning_not_running']=="1").html_safe %>
+  </p>
 </div>
 
 <h3><%= l(:time_tracker_settings_transition_title) %></h3>
 
 <div>
-    <p><%= l(:time_tracker_settings_transition_msg) %></p>
-    <p><%= l(:time_tracker_settings_transition_note) %></p>
+  <p><%= l(:time_tracker_settings_transition_msg) %></p>
+  <p><%= l(:time_tracker_settings_transition_note) %></p>
 
-    <%= render :partial => 'time_trackers/status_transition_list', :locals => { :transitions => @settings['status_transitions'] } %>
+  <%= render :partial => 'time_trackers/status_transition_list', :locals => { :transitions => @settings['status_transitions'] } %>
 
 <%# The div is not close as redmine will close the one opened before rendering this view. As we close this div at the begining of the view, we need an open one before returning. %>

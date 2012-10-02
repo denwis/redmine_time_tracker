@@ -42,4 +42,5 @@ en:
   time_tracker_zombie_legend: "zombie time tracker"
   time_tracker_label_start_new_tracker: "Choose task to start time traker."
   time_tracker_label_update_and_start_new_tracker: "Update task details and stop Time Tracker or start new Time Tracker. Issue will be updated automatically."
-
+  time_tracker_settings_add_to_watchers: "Automatically add to watchers when starting tracker?"
+  time_tracker_settings_warning_not_running: "Show warning when Time tracker is not running"

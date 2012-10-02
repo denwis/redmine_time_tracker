@@ -52,7 +52,8 @@ class TimeTrackersController < ApplicationController
     @issue = Issue.find(:first, :conditions => { :id => params[:issue_id] })
     @time_tracker = TimeTracker.new({ :issue_id => @issue.id })
     if @time_tracker.save
-      apply_status_transition(@issue) unless Setting.plugin_redmine_time_tracker['status_transitions'] == nil
+      apply_status_transition unless Setting.plugin_redmine_time_tracker['status_transitions'] == nil
+      add_to_watchers
       redirect_to :controller => 'issues', :action => 'show', :id => params[:issue_id]
     else
       flash[:error] = l(:start_time_tracker_error)
@@ -135,13 +136,22 @@ class TimeTrackersController < ApplicationController
 
   protected
 
-  def apply_status_transition(issue)
-    new_status_id = Setting.plugin_redmine_time_tracker['status_transitions'][issue.status_id.to_s]
+  def apply_status_transition
+    new_status_id = Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]
     new_status = IssueStatus.find(:first, :conditions => { :id => new_status_id })
-    if issue.new_statuses_allowed_to(User.current).include?(new_status)
+    if @issue.new_statuses_allowed_to(User.current).include?(new_status)
       @issue.init_journal(User.current, notes = l(:time_tracker_label_transition_journal))
       @issue.status_id = new_status_id
       @issue.save
+    end
+  end
+
+  def add_to_watchers
+    # Add to watchers when starting timer
+    if Setting.plugin_redmine_time_tracker['add_to_watchers'] == '1' &&
+        !@issue.watched_by?(User.current) && User.current.allowed_to?("add_#{@issue.class.name.underscore}_watchers".to_sym, @issue.project)
+      @issue.add_watcher(User.current)
+      @issue.save!
     end
   end
 end
