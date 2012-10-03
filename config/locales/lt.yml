@@ -42,3 +42,7 @@ lt:
   time_tracker_zombie_legend: "zombių laikmačiai"
   time_tracker_label_start_new_tracker: "Parinkite užduotį ir aktyvuokite laikmatį."
   time_tracker_label_update_and_start_new_tracker: "Atlikite užduoties pakeitimus ir sustabdykite laikmatį. Arba sąraše parinkite užduotį ir pradėkite naują laikmatį. Užduoties informacija bus išsaugota automatiškai."
+  time_tracker_settings_add_to_watchers: "Įtraukti į stebėtojus pradedant laikmatį"
+  time_tracker_settings_warning_not_running: "Rodyti įspėjimą kad laikmatis sustabytas"
+  time_tracker_settings_auto_assign_user_on_start: "Priskirti vartotoją užduočiai pradedant laikmatį"
+  time_tracker_settings_issue_transition_mesessage: "Įveskite pranešimą kuris bus įrašytas keičiant užduotį"

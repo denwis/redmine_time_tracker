@@ -116,8 +116,8 @@ class TimeTrackersController < ApplicationController
   end
 
   def render_menu
-    @project = Project.find(params[:project_id]) if params[:project_id]
-    @issue = Issue.find(params[:issue_id]) if params[:issue_id]
+    @project = Project.find(params[:project_id]) if params[:project_id] and params[:project_id] != 'null'
+    @issue = Issue.find(params[:issue_id]) if params[:issue_id] and params[:issue_id] != 'null'
     # Show warning of stopped time tracker (change preference in plugin Settings
     flash[:error] = l(:no_time_tracker_running) if Setting.plugin_redmine_time_tracker['warning_not_running'] == '1' and
       (User.current.time_tracker.nil? or User.current.time_tracker.paused) and
@@ -134,7 +134,9 @@ class TimeTrackersController < ApplicationController
       new_status_id = Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]
       new_status = IssueStatus.find(:first, :conditions => { :id => new_status_id })
       if @issue.new_statuses_allowed_to(User.current).include?(new_status)
-        @current_journal = @issue.init_journal(User.current, l(:time_tracker_label_transition_journal))
+        @current_journal = @issue.init_journal(User.current, 
+          Setting.plugin_redmine_time_tracker['issue_transition_mesessage'] == '-default-' ? l(:time_tracker_label_transition_journal) :
+            Setting.plugin_redmine_time_tracker['issue_transition_mesessage'])
         @issue.status_id = new_status_id
         have_changes = true;
       end
