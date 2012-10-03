@@ -81,20 +81,18 @@ class TimeTrackersController < ApplicationController
     if @time_tracker.nil? or @time_tracker.paused
       flash[:error] = l(:no_time_tracker_running)
       redirect_to :back
+    elsif round_hours(@time_tracker.hours_spent) > 0
+      issue = Issue.find(@time_tracker.issue_id)
+      time_entry = TimeEntry.new(:issue => issue, :project => issue.project, :user => User.current,
+        :spent_on => User.current.today, :hours => round_hours(@time_tracker.hours_spent))
+      ok = ok && time_entry.save
+    end
+    @time_tracker.paused = true
+    if ok && @time_tracker.save
+      # redirect_to :back
+      render :update_menu
     else
-      @time_tracker.time_spent = @time_tracker.hours_spent
-      if @time_tracker.hours_spent > 0
-        issue = Issue.find(:first, :conditions => { :id => @time_tracker.issue_id })
-        time_entry = TimeEntry.new(:issue => issue, :project => issue.project, :user => User.current,
-          :spent_on => User.current.today, :hours => round_hours(@time_tracker.hours_spent))
-        ok = time_entry.save
-      end
-      @time_tracker.paused = true
-      if ok && @time_tracker.save
-        redirect_to :back
-      else
-        flash[:error] = l(:suspend_time_tracker_error)
-      end
+      flash[:error] = l(:suspend_time_tracker_error)
     end
   end
 
@@ -117,19 +115,13 @@ class TimeTrackersController < ApplicationController
     end
   end
 
-  def delete
-    @time_tracker = TimeTracker.find(:first, :conditions => { :id => params[:id] })
-    if @time_tracker
-      @time_tracker.destroy
-      render :delete
-    else
-      render :text => l(:time_tracker_delete_fail)
-    end
-  end
-
   def render_menu
-    @project = Project.find(:first, :conditions => { :id => params[:project_id] })
-    @issue = Issue.find(:first, :conditions => { :id => params[:issue_id] })
+    @project = Project.find(params[:project_id]) if params[:project_id]
+    @issue = Issue.find(params[:issue_id]) if params[:issue_id]
+    # Show warning of stopped time tracker (change preference in plugin Settings
+    flash[:error] = l(:no_time_tracker_running) if Setting.plugin_redmine_time_tracker['warning_not_running'] == '1' and
+      (User.current.time_tracker.nil? or User.current.time_tracker.paused) and
+      !@project.nil? and User.current.allowed_to?(:log_time, @project)
     render :partial => 'embed_menu'
   end
 

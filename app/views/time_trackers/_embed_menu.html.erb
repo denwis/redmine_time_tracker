@@ -3,13 +3,13 @@
   <% if time_tracker.paused %>
     <%# A time tracker is in pause, display the tracked issue, the time spent and the resume/stop actions %>
     <%= link_to "##{time_tracker.issue_id.to_s}", issue_path(time_tracker.issue_id), :class => 'icon icon-pause' %>
-    <%= link_to '', time_trackers_resume_path, :class => 'icon-action icon-start-action', :title => l(:resume_time_tracker) %>
+    <%= link_to '', time_trackers_resume_path, :class => "icon-action icon-start-action #{'time-tracker-not-running' if Setting.plugin_redmine_time_tracker['warning_not_running'] == '1'}", :title => l(:resume_time_tracker) %>
     <%= link_to '', time_trackers_path(:stop => true), :remote => true, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
   <% else %>
     <%# A time tracker is running, display the tracked issue, the time spent and the suspend/stop actions %>
     <%= link_to '#' + time_tracker.issue_id.to_s, issue_path(time_tracker.issue_id), :class => 'icon icon-clock' %>
     / <%= time_tracker.time_spent_to_s %> /
-    <%= link_to '', time_trackers_suspend_path, :class => 'icon-action icon-pause-action', :title => l(:suspend_time_tracker) %>
+    <%= link_to '', time_trackers_suspend_path, :remote => true, :class => 'icon-action icon-pause-action', :title => l(:suspend_time_tracker) %>
     <%= link_to '', time_trackers_path(:stop => true), :remote => true, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
   <% end %>
 <% elsif @project and User.current.allowed_to?(:log_time, @project) and @issue.try(:persisted?) %>
@@ -19,9 +19,10 @@
 <% else %>
   <%# No time tracker is running but the user has the rights to track time on a project %>
   <%# Display the "Not running" entry %>
-  <span class='icon icon-time'><%= l(:time_tracker_not_running) %>&nbsp;</span>
+  <span class='icon icon-time <%= Setting.plugin_redmine_time_tracker['warning_not_running'] == '1' ? "time-tracker-not-running" : "" %>'>
+    <%= l(:time_tracker_not_running) %>
+  </span>
 <% end %>
-
 <% if User.current.allowed_to?(:log_time, nil, :global => true) or User.current.allowed_to?(:view_others_time_trackers, nil, :global => true) %>
   <span>
     <%= link_to '', time_trackers_path, :remote => true, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers) %>

@@ -13,7 +13,7 @@ Redmine::Plugin.register :redmine_time_tracker do
   description 'This is a plugin to track time in Redmine'
   version '0.5'
 
-  requires_redmine :version_or_higher => '1.1.0'
+  requires_redmine :version_or_higher => '2.0.0'
 
   settings :default => { 'refresh_rate' => '60', 'status_transitions' => {},
     'add_to_watchers' => 1, 'warning_not_running' => '0' }, :partial => 'settings/time_tracker'

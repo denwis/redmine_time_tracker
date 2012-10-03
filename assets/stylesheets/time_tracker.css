@@ -52,3 +52,6 @@
 #settings form[action="/settings/plugin/redmine_time_tracker"] > div + div { display: none } /* Hack to remove the div opened by redmine before rendering the plugin settings partial */
 
 #user-issues-list {height:300px; }
+
+span.time-tracker-not-running { background-color: red; }
+a.time-tracker-not-running { background-color: red; }
