@@ -130,14 +130,13 @@ class TimeTrackersController < ApplicationController
   def apply_issue_changes_on_start
     # Change issue status
     have_changes = false
-    unless Setting.plugin_redmine_time_tracker['status_transitions'] == nil
-      new_status_id = Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]
-      new_status = IssueStatus.find(:first, :conditions => { :id => new_status_id })
+    journal_note = Setting.plugin_redmine_time_tracker['issue_transition_mesessage'] == '-default-' ? l(:time_tracker_label_transition_journal) :
+      Setting.plugin_redmine_time_tracker['issue_transition_mesessage']
+    unless Setting.plugin_redmine_time_tracker['status_transitions'].nil?
+      new_status = IssueStatus.find(:first, :conditions => {:id => Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]})
       if @issue.new_statuses_allowed_to(User.current).include?(new_status)
-        @current_journal = @issue.init_journal(User.current, 
-          Setting.plugin_redmine_time_tracker['issue_transition_mesessage'] == '-default-' ? l(:time_tracker_label_transition_journal) :
-            Setting.plugin_redmine_time_tracker['issue_transition_mesessage'])
-        @issue.status_id = new_status_id
+        @current_journal = @issue.init_journal(User.current, journal_note)
+        @issue.status_id = new_status.id
         have_changes = true;
       end
     end
@@ -149,8 +148,9 @@ class TimeTrackersController < ApplicationController
     end
     # Assign to user
     if Setting.plugin_redmine_time_tracker['auto_assign_user_on_start'] == '1' &&
-        @issue.assigned_to != User.current.id && User.current.allowed_to?("edit_#{@issue.class.name.underscore}s".to_sym, @issue.project)
-      @issue.init_journal(User.current, l(:time_tracker_label_transition_journal)) if @current_journal.nil?
+        @issue.assigned_to != User.current &&
+        User.current.allowed_to?("edit_#{@issue.class.name.underscore}s".to_sym, @issue.project)
+      @issue.init_journal(User.current, journal_note) if @current_journal.nil?
       @issue.assigned_to = User.current
       have_changes = true;
     end
