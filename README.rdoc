@@ -5,6 +5,9 @@ The plugin allows to start/suspend/resume/stop a timer on a per user basis.
 
 == Features
 
+* NEW! Only 1 active time tracker.
+* NEW! Fast switch between time trackers. Time tracker spent time is automatically stored as time entry.
+* NEW! Updated time trackers list (index) page. Shows most recent tasks updated / worked on by current user instead of paused time trackers.
 * Current spent time always visible
 * Timer automatic updated without reload
 * Per user time tracking
