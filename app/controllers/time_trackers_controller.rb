@@ -52,7 +52,7 @@ class TimeTrackersController < ApplicationController
     @issue = Issue.find(:first, :conditions => { :id => params[:issue_id] })
     @time_tracker = TimeTracker.new({ :issue_id => @issue.id })
     if @time_tracker.save
-      apply_issue_changes_on_start
+      apply_issue_changes_on_start if User.current.allowed_to?("apply_issue_transition".to_sym, @issue.project)
       redirect_to :controller => 'issues', :action => 'show', :id => params[:issue_id]
     else
       flash[:error] = l(:start_time_tracker_error)
