@@ -1,4 +1,4 @@
-<% if User.current.logged? %>
+<% if User.current.logged? && User.current.allowed_to?(:log_spent_time, nil, {:global => true}) %>
 
   <!--
   This script replaces the <a id="time-tracker-menu">...</a> element by a span with the same id.
