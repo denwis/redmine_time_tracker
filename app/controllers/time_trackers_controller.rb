@@ -52,7 +52,7 @@ class TimeTrackersController < ApplicationController
     @issue = Issue.find(:first, :conditions => { :id => params[:issue_id] })
     @time_tracker = TimeTracker.new({ :issue_id => @issue.id })
     if @time_tracker.save
-      apply_issue_changes_on_start if User.current.allowed_to?("apply_issue_transition".to_sym, @issue.project)
+      apply_issue_changes_on_start 
       redirect_to :controller => 'issues', :action => 'show', :id => params[:issue_id]
     else
       flash[:error] = l(:start_time_tracker_error)
@@ -132,7 +132,9 @@ class TimeTrackersController < ApplicationController
     have_changes = false
     journal_note = Setting.plugin_redmine_time_tracker['issue_transition_mesessage'] == '-default-' ? l(:time_tracker_label_transition_journal) :
       Setting.plugin_redmine_time_tracker['issue_transition_mesessage']
-    unless Setting.plugin_redmine_time_tracker['status_transitions'].nil?
+    if (!User.current.admin? && User.current.allowed_to?("apply_issue_transition".to_sym, @issue.project) ||
+          User.current.admin? && Setting.plugin_redmine_time_tracker['admin_issue_transition'] == '1') &&
+        !Setting.plugin_redmine_time_tracker['status_transitions'].nil?
       new_status = IssueStatus.find(:first, :conditions => {:id => Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]})
       if @issue.new_statuses_allowed_to(User.current).include?(new_status)
         @current_journal = @issue.init_journal(User.current, journal_note)

@@ -46,3 +46,4 @@ lt:
   time_tracker_settings_warning_not_running: "Rodyti įspėjimą kad laikmatis sustabytas"
   time_tracker_settings_auto_assign_user_on_start: "Priskirti vartotoją užduočiai pradedant laikmatį"
   time_tracker_settings_issue_transition_mesessage: "Įveskite pranešimą kuris bus įrašytas keičiant užduotį"
+  time_tracker_settings_admin_issue_transition: "Administratorius keis uzduoties statusa startuojant laikmaciui?"
