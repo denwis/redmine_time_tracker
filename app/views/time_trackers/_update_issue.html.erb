@@ -1,4 +1,4 @@
-<%= labelled_form_for @issue, :url => '/time_trackers/stop', :remote => true, :html => {:id => 'issue-compact-form', :multipart => true} do |f| %>
+<%= labelled_form_for @issue, :url => time_trackers_stop_path, :remote => true, :html => {:id => 'issue-compact-form', :multipart => true} do |f| %>
 
   <% view_private = User.current.allowed_to?(:view_private_messages, @project) %>
 

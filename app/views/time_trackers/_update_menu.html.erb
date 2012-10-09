@@ -1,4 +1,4 @@
-<% if User.current.logged? && User.current.allowed_to?(:log_spent_time, nil, {:global => true}) %>
+<% if User.current.logged? && User.current.allowed_to?(:log_time, nil, {:global => true}) %>
 
   <!--
   This script replaces the <a id="time-tracker-menu">...</a> element by a span with the same id.
@@ -17,6 +17,7 @@
   <!--
   Used by updateTimeTrackerMenu() function which will update the time tracker menu item using an AJAX request to retrieve the data
   -->
-  <%= content_tag :div, "", { :id => 'time_tracker_info', :data => { :project_id => @project.try(:id), :issue_id => @issue.try(:id), :refresh_rate => Setting.plugin_redmine_time_tracker['refresh_rate'] } } %>
+  <%= content_tag :div, "", { :id => 'time_tracker_info', :data => { :project_id => @project.try(:id), :issue_id => @issue.try(:id), 
+      :refresh_rate => Setting.plugin_redmine_time_tracker['refresh_rate'], :time_trackers_path => time_trackers_path } } %>
 
 <% end %>
