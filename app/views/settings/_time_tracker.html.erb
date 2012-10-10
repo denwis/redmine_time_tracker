@@ -24,8 +24,8 @@
       check_box_tag('settings[warning_not_running]', 1, @settings['warning_not_running']=="1").html_safe %>
   </p>
   <p>
-    <%= label_tag 'settings[issue_transition_mesessage]', l(:time_tracker_settings_issue_transition_mesessage) %>
-    <%= text_field_tag 'settings[issue_transition_mesessage]', @settings['issue_transition_mesessage'] == '-default-' ? l(:time_tracker_label_transition_journal) : @settings['issue_transition_mesessage'], { :size => 100 } %>
+    <%= label_tag 'settings[issue_transition_mesessage]', l(:time_tracker_settings_issue_transition_message) %>
+    <%= text_field_tag 'settings[issue_transition_mesessage]', @settings['issue_transition_mesessage'], { :size => 100 } %>
   </p>
     <p>
     <%= label_tag('settings[admin_issue_transition]', l(:time_tracker_settings_admin_issue_transition)).html_safe +

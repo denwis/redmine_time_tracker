@@ -143,8 +143,7 @@ class TimeTrackersController < ApplicationController
   def apply_issue_changes_on_start
     # Change issue status
     have_changes = false
-    journal_note = Setting.plugin_redmine_time_tracker['issue_transition_mesessage'] == '-default-' ? l(:time_tracker_label_transition_journal) :
-      Setting.plugin_redmine_time_tracker['issue_transition_mesessage']
+    journal_note = Setting.plugin_redmine_time_tracker['issue_transition_message']
     if (!User.current.admin? && User.current.allowed_to?("apply_issue_transition".to_sym, @issue.project) ||
           User.current.admin? && Setting.plugin_redmine_time_tracker['admin_issue_transition'] == '1') &&
         !Setting.plugin_redmine_time_tracker['status_transitions'].nil?

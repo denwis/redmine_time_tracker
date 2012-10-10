@@ -2,7 +2,6 @@
 
   <% view_private = User.current.allowed_to?(:view_private_messages, @project) %>
 
-  <div class="box">
     <fieldset class="tabular"><legend><%= l(:button_update) %></legend>
       <% if User.current.allowed_to?(:log_time, @project) %>
 
@@ -43,7 +42,6 @@
       <%=  l(:field_notes) %>
       <%= text_area_tag 'notes', @notes, :cols => 60, :rows => 3, :class => 'wiki-edit' %>
     </fieldset>
-  </div>
 
   <%= f.hidden_field :lock_version %>
   <%= f.hidden_field :id %>

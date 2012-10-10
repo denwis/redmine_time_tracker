@@ -15,9 +15,12 @@ Redmine::Plugin.register :redmine_time_tracker do
 
   requires_redmine :version_or_higher => '2.0.0'
 
+  Dir[File.join("#{File.dirname(__FILE__)}/config/locales/*.yml")].each do |locale|
+    I18n.load_path.unshift(locale)
+  end
   settings :default => { 'refresh_rate' => '60', 'status_transitions' => {},
     'add_to_watchers' => '1', 'warning_not_running' => '0',
-    'issue_transition_mesessage' => '-default-'},
+    'issue_transition_mesessage' => I18n.translate(:time_tracker_settings_issue_transition_message) },
     :partial => 'settings/time_tracker'
 
   permission :apply_issue_transition, :time_trackers => :start
