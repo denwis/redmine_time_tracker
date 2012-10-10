@@ -1,9 +1,9 @@
 # encoding: utf-8
 require 'redmine'
-require 'redmine/i18n'
-require 'i18n'
 require_dependency 'time_tracker_hooks'
 require 'tt_user_patch'
+require 'tt_query_patch'
+require 'tt_issue_patch'
 # workaround helping rails to find the helper-methods
 require File.join(File.dirname(__FILE__), "app", "helpers", "application_helper.rb")
 

@@ -4,20 +4,20 @@
     <%# A time tracker is in pause, display the tracked issue, the time spent and the resume/stop actions %>
     <%= link_to "##{time_tracker.issue_id.to_s}", issue_path(time_tracker.issue_id), :class => 'icon icon-pause',
       :title => time_tracker.issue.project.to_s + ' - ' + time_tracker.issue.to_s, :rel => 'tooltip' %>
-    <%= link_to '', time_trackers_resume_path, :class => "icon-action icon-start-action #{'time-tracker-not-running' if Setting.plugin_redmine_time_tracker['warning_not_running'] == '1'}", :title => l(:resume_time_tracker) %>
-    <%= link_to '', time_trackers_path(:stop => true), :remote => true, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
+  <%= link_to '', time_trackers_resume_path, :class => "icon-action icon-start-action #{'time-tracker-not-running' if Setting.plugin_redmine_time_tracker['warning_not_running'] == '1'}", :title => l(:resume_time_tracker).capitalize %>
+    <%= link_to '', time_trackers_path(:stop => true), :remote => true, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker).capitalize %>
   <% else %>
     <%# A time tracker is running, display the tracked issue, the time spent and the suspend/stop actions %>
     <%= link_to '#' + time_tracker.issue_id.to_s, issue_path(time_tracker.issue_id), :class => 'icon icon-clock',
       :title => time_tracker.issue.project.to_s + ' - ' + time_tracker.issue.to_s, :rel => 'tooltip' %>
     / <%= time_tracker.time_spent_to_s %> /
-    <%= link_to '', time_trackers_suspend_path, :remote => true, :class => 'icon-action icon-pause-action', :title => l(:suspend_time_tracker) %>
-    <%= link_to '', time_trackers_path(:stop => true), :remote => true, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker) %>
+    <%= link_to '', time_trackers_suspend_path, :remote => true, :class => 'icon-action icon-pause-action', :title => l(:suspend_time_tracker).capitalize %>
+    <%= link_to '', time_trackers_path(:stop => true), :remote => true, :class => 'icon-action icon-stop-action', :title => l(:stop_time_tracker).capitalize %>
   <% end %>
 <% elsif @project and User.current.allowed_to?(:log_time, @project) and @issue.try(:persisted?) %>
   <%# No time tracker is running, but the user look at an issue and he has the rights to track time on it %>
   <%# Display the start time tracker action on this issue %>
-  <%= link_to "#{l(:start_time_tracker)} ##{@issue.id.to_s}", time_trackers_start_path(:issue_id => @issue.id) , :class => 'icon icon-start' %>
+  <%= link_to "#{l(:start_time_tracker)} ##{@issue.id.to_s}", time_trackers_start_path(:issue_id => @issue.id) , :class => 'icon icon-start', :title => l(:start_time_tracker).capitalize %>
 <% else %>
   <%# No time tracker is running but the user has the rights to track time on a project %>
   <%# Display the "Not running" entry %>
@@ -27,6 +27,6 @@
 <% end %>
 <% if User.current.allowed_to?(:log_time, nil, :global => true) or User.current.allowed_to?(:view_others_time_trackers, nil, :global => true) %>
   <span>
-    <%= link_to '', time_trackers_path, :remote => true, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers) %>
+    <%= link_to '', time_trackers_path, :remote => true, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers).capitalize %>
   </span>
 <% end %>

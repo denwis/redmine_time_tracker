@@ -1,5 +1,11 @@
 class TimeTrackersController < ApplicationController
 
+  helper :sort
+  include SortHelper
+  helper :queries
+  include QueriesHelper
+  helper :issues
+  include IssuesHelper
   helper :time_trackers
   include TimeTrackersHelper
     
@@ -24,16 +30,23 @@ class TimeTrackersController < ApplicationController
       end
       # --- end issue update fields
 
-      cond = "(#{Issue.table_name}.`assigned_to_id` = #{User.current.id} OR t.id IS NOT NULL OR j.id IS NOT NULL)"
-      cond << " AND #{Issue.table_name}.`id` <> #{@issue.id} " unless @issue.nil?
-      @filtered_issues = Issue.find(:all,
-        :conditions => cond,
-        :joins => "INNER JOIN #{IssueStatus.table_name} s ON #{Issue.table_name}.status_id = s.id AND s.is_closed <> 1 " +
-          "LEFT JOIN #{TimeEntry.table_name} t ON #{Issue.table_name}.id = t.issue_id AND t.user_id = #{User.current.id} "+
-          "LEFT JOIN #{Journal.table_name} j ON #{Issue.table_name}.id = j.journalized_id AND j.journalized_type = 'Issue' AND j.user_id = #{User.current.id} ",
-        :group => "#{Issue.table_name}.id",
-        :order => "IFNULL(t.updated_on, IFNULL(j.created_on, #{Issue.table_name}.`updated_on`)) DESC",
-        :limit => 20)
+      # --------------- Issues -------------------
+      @query = Query.find(:first, :conditions => {:name => l(:time_tracker_query_name), :user_id => User.current.id})
+      if @query.nil?
+        @query = Query.new(:name => l(:time_tracker_query_name),
+          :project => nil,
+          :user => User.current,
+          :column_names => ["subject", "updated_on", 'time_trackers_buttons'],
+          :sort_criteria => [["updated_on", "desc"]],
+          :filters => {})
+        @query.add_filter('updated_by', '=', ['me'])
+        @query.add_filter('status_id', 'o', [''])
+        @query.save
+      end 
+      sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
+      sort_update(@query.sortable_columns)
+      @issues = @query.issues(:order => sort_clause, :limit => 20)
+      @issue_count_by_group = @query.issue_count_by_group
     end
   end
 
@@ -90,7 +103,7 @@ class TimeTrackersController < ApplicationController
     @time_tracker.paused = true
     if ok && @time_tracker.save
       # redirect_to :back
-      render :update_menu
+      render 'update_menu'
     else
       flash[:error] = l(:suspend_time_tracker_error)
     end

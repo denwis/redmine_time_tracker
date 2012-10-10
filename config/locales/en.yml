@@ -47,3 +47,8 @@ en:
   time_tracker_settings_auto_assign_user_on_start: "Assign user to issue"
   time_tracker_settings_issue_transition_mesessage: "Enter default issue update note"
   time_tracker_settings_admin_issue_transition: "Enable Admin user issue status transitions"
+  time_tracker_query_name: "My recent issues"
+  field_spent_by: "Spent by"
+  field_time_trackers_spent_on: "Spent on"
+  field_time_trackers_buttons: "Action"
+  field_updated_by: "Updated by"
