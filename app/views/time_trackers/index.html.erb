@@ -1,7 +1,7 @@
 <div class="flash notice" id="flash_error">
     <%= @issue.nil? ? l(:time_tracker_label_start_new_tracker) : l(:time_tracker_label_update_and_start_new_tracker) %>
 </div>
-<%= render 'update_issue' unless @issue.nil? %>
+<%= render 'issues/update_issue' unless @issue.nil? %>
 
 <div class="contextual">
 <% if !@query.new_record? && @query.editable_by?(User.current) %>
