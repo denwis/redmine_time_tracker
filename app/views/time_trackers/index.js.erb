@@ -1,4 +1,4 @@
-$('#ajax-modal').html('<%= escape_javascript(render :template => 'time_trackers/index.html') %>');
+$('#ajax-modal').html('<%= escape_javascript(render :template => 'time_trackers/index', :formats => [:html]) %>');
 showModal('ajax-modal', '850px');
 $("a[href^='/time_trackers?sort=']").attr('data-remote', 'true');
 $('#ui-dialog-title-ajax-modal').innerHTML='<%= @issue.nil? ? l(:start_time_tracker).capitalize : @issue %>';
