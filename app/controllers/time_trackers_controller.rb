@@ -12,42 +12,7 @@ class TimeTrackersController < ApplicationController
   unloadable
 
   def index
-    unless User.current.nil?
-      @time_tracker = User.current.time_tracker
-      unless @time_tracker.nil? || params[:stop].nil?
-        @time_tracker.issue_id = params[:issue_id] unless params[:issue_id].nil?
-        # -- Issue update form fields
-        @issue = Issue.find(:first, :conditions => { :id => @time_tracker.issue_id })
-        @project = Project.find(:first, :conditions => { :id => @issue.project_id })
-        @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
-        @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
-        @time_entry.hours = round_hours(@time_tracker.hours_spent)
-        @notes = ""
-        @private_message = false
-        @issue.init_journal(User.current, @notes, @private_message)
-        @priorities = IssuePriority.active
-        @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
-      end
-      # --- end issue update fields
-
-      # --------------- Issues -------------------
-      @query = Query.find(:first, :conditions => {:name => l(:time_tracker_query_name), :user_id => User.current.id})
-      if @query.nil?
-        @query = Query.new(:name => l(:time_tracker_query_name),
-          :project => nil,
-          :user => User.current,
-          :column_names => ["subject", "updated_on", 'time_trackers_buttons'],
-          :sort_criteria => [["updated_on", "desc"]],
-          :filters => {})
-        @query.add_filter('updated_by', '=', ['me'])
-        @query.add_filter('status_id', 'o', [''])
-        @query.save
-      end 
-      sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
-      sort_update(@query.sortable_columns)
-      @issues = @query.issues(:order => sort_clause, :limit => 20)
-      @issue_count_by_group = @query.issue_count_by_group
-    end
+    get_recent_issues_query
   end
 
   def start
@@ -114,17 +79,29 @@ class TimeTrackersController < ApplicationController
       @issue = Issue.find(params[:issue][:id])
       # from IssueController.update_issue_from_params
       @notes = params[:notes] || (params[:issue].present? ? params[:issue][:notes] : nil)
-      @private_message = params[:private_message] || false
-      @issue.init_journal(User.current, @notes, @private_message)
+      @issue.init_journal(User.current, @notes)
       @issue.safe_attributes = params[:issue]
       @issue.save_issue_with_child_records(params, nil)
       time_tracker = User.current.time_tracker
       time_tracker.destroy unless time_tracker.nil?
-    end
-    if params[:start_tracker] && params[:start_tracker].present?
-      redirect_to :controller => :time_trackers, :action => :start, :issue_id => params[:start_tracker]
+      if params[:start_tracker] && params[:start_tracker].present?
+        redirect_to :action => :start, :issue_id => params[:start_tracker]
+      else
+        redirect_to :action => :index
+      end
     else
-      redirect_to :controller => :time_trackers, :action => :index
+      @time_tracker = User.current.time_tracker
+      # -- Issue update form fields
+      @issue = Issue.find(:first, :conditions => { :id => @time_tracker.try(:issue_id) })
+      @project = Project.find(:first, :conditions => { :id => @issue.try(:project_id) })
+      @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
+      @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
+      @time_entry.hours = round_hours(@time_tracker.hours_spent)
+      @notes = ""
+      @issue.init_journal(User.current, @notes)
+      @priorities = IssuePriority.active
+      @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+      get_recent_issues_query
     end
   end
 
@@ -139,6 +116,27 @@ class TimeTrackersController < ApplicationController
   end
 
   protected
+
+
+  def get_recent_issues_query
+    # --------------- Issues -------------------
+    @query = Query.find(:first, :conditions => {:name => l(:time_tracker_query_name), :user_id => User.current.id})
+    if @query.nil?
+      @query = Query.new(:name => l(:time_tracker_query_name),
+        :project => nil,
+        :user => User.current,
+        :column_names => ["subject", "updated_on", 'time_trackers_buttons'],
+        :sort_criteria => [["updated_on", "desc"]],
+        :filters => {})
+      @query.add_filter('updated_by', '=', ['me'])
+      @query.add_filter('status_id', 'o', [''])
+      @query.save
+    end
+    sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
+    sort_update(@query.sortable_columns)
+    @issues = @query.issues(:order => sort_clause, :limit => 20)
+    @issue_count_by_group = @query.issue_count_by_group
+  end
 
   def apply_issue_changes_on_start
     # Change issue status

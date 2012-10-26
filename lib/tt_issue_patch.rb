@@ -5,6 +5,8 @@ module TimeTrackerIssuePatch
     base.send(:include, InstanceMethods) # obj.method
 
     base.class_eval do
+      include ActionView::Helpers::UrlHelper
+
       alias_method_chain :css_classes, :time_tracker
     end
   end
@@ -30,27 +32,32 @@ class Issue < ActiveRecord::Base
     return (te)? te.spent_on : nil
   end
 
-  def time_trackers_buttons(user = User.current)
-    #    return ("<a href='#' class='icon icon-start'>" + l(:start_time_tracker) + "</a>").html_safe
-    result = '';
-    time_tracker = user.time_tracker
-    if !time_tracker.nil? && time_tracker.issue == self
-      if time_tracker.paused
-        # A time tracker is paused, display the resume action
-        result << "<a href=/time_trackers/resume class='icon icon-resume'>" + l(:resume_time_tracker).capitalize + "</a>"
-      else
-        # A time tracker is not paused, display the suspend action
-        result << '<a href="/time_trackers/suspend" class=" icon icon-pause" data-method="post" data-remote="true" update="time-tracker-menu">'+ l(:suspend_time_tracker).capitalize + "</a>"
-      end
-      # A time tracker exists, display the stop action
-      result << '<a href="/time_trackers?stop=true" class=" icon icon-stop" data-method="post" data-remote="true" update="time-tracker-menu">' + l(:stop_time_tracker).capitalize + "</a>"
-    elsif self != time_tracker.try(:issue) && !self.project.nil? && !self.nil? && user.allowed_to?(:log_time, self.project)
-        # Time tracker is not running for selected issue, but the user has the rights to track time on this issue
-      # Display the start time tracker action
-      result << "<a href=/time_trackers/start?issue_id=" + self.id.to_s + " class='icon icon-start'>" + l(:start_time_tracker).capitalize + "</a>"
-    end
-    result.html_safe
+  def available_actions(issue = self)
+    time_tracker = User.current.time_tracker
+    avail_actions = []
+    avail_actions << (time_tracker.try(:issue) == issue ? 'stop': 'start')
+    avail_actions << (time_tracker.paused ? 'resume' : 'suspend') unless time_tracker.nil? || time_tracker.try(:issue) != issue
+    avail_actions
   end
+
+  def remote_call?(action)
+    ['suspend', 'stop'].include?(action)
+  end
+
+  def time_trackers_buttons(separator ='<br>', labels = true, icon_class = '')
+    result = [];
+    available_actions.each do |tt_action|
+      result << link_to(labels ? l("#{tt_action}_time_tracker".to_sym).capitalize : "",
+        Rails.application.routes.url_helpers.send("time_trackers_#{tt_action}_path", {:issue_id => self.id}),
+        {:remote => remote_call?(tt_action), :class => "icon icon-#{tt_action+icon_class}"})
+    end
+    result.join(separator).html_safe
+  end
+
+  def self.default_url_options
+    { :host => Setting.host_name, :protocol => Setting.protocol }
+  end
+
 end
 
 Issue.send(:include, TimeTrackerIssuePatch)

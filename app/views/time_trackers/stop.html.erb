@@ -1,0 +1,5 @@
+<div class="flash notice" id="flash_error"><%= l(:time_tracker_label_update_and_start_new_tracker) %></div>
+
+<% # Render Issue update form  %>
+<%= render 'issues/edit_compact' unless @issue.nil? %>
+<%= render 'issues/recent_list' %>

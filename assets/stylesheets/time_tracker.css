@@ -1,7 +1,6 @@
 .icon-clock { background-image: url(../images/clock.gif); }
-.icon-start { background-image: url(../images/time_start.png); }
-.icon-resume { background-image: url(../images/time_start.png); }
-.icon-pause { background-image: url(../images/time_pause.png); }
+.icon-start, .icon-resume { background-image: url(../images/time_start.png); }
+.icon-suspend { background-image: url(../images/time_pause.png); }
 .icon-stop { background-image: url(../images/time_stop.png); }
 
 .icon-action {
@@ -15,8 +14,8 @@
     padding-bottom: 4px;
 }
 
-.icon-start-action { background-image: url(../images/start.png); }
-.icon-pause-action { background-image: url(../images/pause.png); }
+.icon-start-action, .icon-resume-action { background-image: url(../images/start.png); }
+.icon-suspend-action { background-image: url(../images/pause.png); }
 .icon-stop-action { background-image: url(../images/stop.png); }
 .icon-list-action { background-image: url(../images/list.png); }
 

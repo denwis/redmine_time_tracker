@@ -32,20 +32,6 @@ class TimeTracker < ActiveRecord::Base
     hours.to_s + l(:time_tracker_hour_sym) + minutes.to_s.rjust(2, '0')
   end
 
-  def zombie?
-    user = User.find(self.user_id)
-    if user.nil? or user.locked?
-      return true
-    end
-
-    issue = Issue.find(self.issue_id)
-    if issue.nil? or !user.allowed_to?(:log_time, issue.project)
-      return true
-    end
-
-    return false
-  end
-
   protected
 
   def running_time

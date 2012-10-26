@@ -54,11 +54,13 @@ function addTransitionField() {
 $(document).ready( function() {
     var areas = $('div#content>div.contextual').find('a.icon-time-add');
     var startButtonTemplate = $('a.time-tracker-start')[0];
-    for (ai = 0; ai < areas.length; ai++) {
-        var area = areas[ai];
-        var startButton = startButtonTemplate.cloneNode(true);
-        startButton.style.display = 'inline';
-        $(startButton).insertBefore(area);
+    if (startButtonTemplate) {
+        for (ai = 0; ai < areas.length; ai++) {
+            var area = areas[ai];
+            var startButton = startButtonTemplate.cloneNode(true);
+            startButton.style.display = 'inline';
+            $(startButton).insertBefore(area);
+        }
     }
 });
 
