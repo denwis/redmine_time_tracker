@@ -54,10 +54,6 @@ class Issue < ActiveRecord::Base
     result.join(separator).html_safe
   end
 
-  def self.default_url_options
-    { :host => Setting.host_name, :protocol => Setting.protocol }
-  end
-
-end
+ end
 
 Issue.send(:include, TimeTrackerIssuePatch)
