@@ -5,8 +5,7 @@
 function updateTimeTrackerMenu() {
     var path = $('div#time_tracker_info').data('time-trackers-path');
     if (path) {
-//        $.get(path+'/render_menu', '',  updateElementIfChanged);
-        $.get(path+'/render_menu');
+        $.get(path+'/render_menu', '',  updateElementIfChanged);
     }
 }
 
