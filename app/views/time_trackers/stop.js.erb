@@ -1,6 +1,6 @@
 $('#ajax-modal').html('<%= escape_javascript(render :template => 'time_trackers/stop', :formats => [:html]) %>');
 showModal('ajax-modal', '850px');
-// updateTimeTrackerMenu();
+updateTimeTrackerMenu();
 // Add remote to issue list headers
 $("a[href^='/time_trackers?sort=']").attr('data-remote', 'true');
 // Add modal dialog title

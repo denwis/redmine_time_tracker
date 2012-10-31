@@ -43,15 +43,16 @@ class Issue < ActiveRecord::Base
   end
 
   def remote_call?(action)
-#    ['suspend', 'stop'].include?(action)
-   ['stop'].include?(action)
+    #    ['suspend', 'stop'].include?(action)
+    ['stop'].include?(action)
   end
 
   def time_trackers_buttons(separator ='<br>', labels = true, icon_class = '')
     result = [];
     available_actions.each do |tt_action|
       result << link_to(labels ? l("#{tt_action}_time_tracker".to_sym).capitalize : "",
-        Rails.application.routes.url_helpers.send("time_trackers_#{tt_action}_path", {:issue_id => self.id}),
+        Rails.application.routes.url_helpers.url_for(:controller => "time_trackers", :action => tt_action, :issue_id => self.id,
+          :only_path => false,  :host => Setting.host_name, :protocol => Setting.protocol),
         {:remote => remote_call?(tt_action), :class => "icon icon-#{tt_action+icon_class}"})
     end
     result.join(separator).html_safe
