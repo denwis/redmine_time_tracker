@@ -46,7 +46,7 @@ class TimeTrackersController < ApplicationController
       @time_tracker.started_on = Time.now
       @time_tracker.paused = false
       if @time_tracker.save
-        redirect_back_or_default({:controller => 'issues', :action => 'show', :id => @time_tracker.issue_id})
+        redirect_to :back
       else
         flash[:error] = l(:resume_time_tracker_error)
       end
@@ -67,8 +67,7 @@ class TimeTrackersController < ApplicationController
     end
     @time_tracker.paused = true
     if ok && @time_tracker.save
-      # redirect_to :back
-      render 'update_menu'
+      redirect_to :back
     else
       flash[:error] = l(:suspend_time_tracker_error)
     end
@@ -106,12 +105,9 @@ class TimeTrackersController < ApplicationController
   end
 
   def render_menu
-    @project = Project.find(params[:project_id]) if params[:project_id] and params[:project_id] != 'null'
-    @issue = Issue.find(params[:issue_id]) if params[:issue_id] and params[:issue_id] != 'null'
     # Show warning of stopped time tracker (change preference in plugin Settings
-    flash[:error] = l(:no_time_tracker_running) if Setting.plugin_redmine_time_tracker['warning_not_running'] == '1' and
-      (User.current.time_tracker.nil? or User.current.time_tracker.paused) and
-      !@project.nil? and User.current.allowed_to?(:log_time, @project)
+    flash[:warning] = l(:no_time_tracker_running) if Setting.plugin_redmine_time_tracker['warning_not_running'] == '1' and
+      (User.current.time_tracker.nil? or User.current.time_tracker.paused)
     render :partial => 'embed_menu'
   end
 

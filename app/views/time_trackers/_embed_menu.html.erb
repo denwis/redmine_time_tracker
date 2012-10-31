@@ -1,13 +1,19 @@
 <% if User.current.allowed_to?(:log_time, nil, :global => true) %>
   <% if time_tracker = User.current.time_tracker %>
+    <span class='<%= time_tracker.paused && Setting.plugin_redmine_time_tracker['warning_not_running'] == '1' ? "time-tracker-not-running" : "" %>'>
     <%= link_to "##{time_tracker.issue_id.to_s}", issue_path(time_tracker.issue_id), :class => "icon icon-#{time_tracker.paused ? 'suspend' : 'clock'}",
-      :title => time_tracker.issue.project.to_s + ' - ' + time_tracker.issue.to_s, :rel => 'tooltip' %>
+      :title => time_tracker.issue.project.to_s + ' - ' + time_tracker.issue.to_s, :rel => 'tooltip'  %>
     / <%= time_tracker.time_spent_to_s %> /
-    <span>
-      <%= time_tracker.issue.time_trackers_buttons('</span><span>', false, '-action icon-action') %>
-    </span>
-    <span>
-      <%= link_to '', time_trackers_path, :remote => true, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers).capitalize %>
     </span>
   <% end %>
+  <% issue = time_tracker.nil? ? @issue : time_tracker.issue %>
+  <% if issue.nil? %>
+    <span class='icon icon-time <%= Setting.plugin_redmine_time_tracker['warning_not_running'] == '1' ? "time-tracker-not-running" : "" %>'>
+      <%= l(:time_tracker_not_running) %></span>
+  <% else %>
+    <span><%= issue.time_trackers_buttons('</span><span>', false, '-action icon-action') unless issue.nil? %></span>
+  <% end %>
+  <span>
+    <%= link_to '', time_trackers_path, :remote => true, :class => 'icon-action icon-list-action', :title => l(:list_time_trackers).capitalize %>
+  </span>
 <% end %>

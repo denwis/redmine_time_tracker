@@ -35,13 +35,16 @@ class Issue < ActiveRecord::Base
   def available_actions(issue = self)
     time_tracker = User.current.time_tracker
     avail_actions = []
-    avail_actions << (time_tracker.try(:issue) == issue ? 'stop': 'start')
-    avail_actions << (time_tracker.paused ? 'resume' : 'suspend') unless time_tracker.nil? || time_tracker.try(:issue) != issue
+    if User.current.allowed_to?(:log_time, issue.project)
+      avail_actions << (time_tracker.paused ? 'resume' : 'suspend') unless time_tracker.nil? || time_tracker.try(:issue) != issue
+      avail_actions << (time_tracker.try(:issue) == issue ? 'stop': 'start')
+    end
     avail_actions
   end
 
   def remote_call?(action)
-    ['suspend', 'stop'].include?(action)
+#    ['suspend', 'stop'].include?(action)
+   ['stop'].include?(action)
   end
 
   def time_trackers_buttons(separator ='<br>', labels = true, icon_class = '')
@@ -54,6 +57,6 @@ class Issue < ActiveRecord::Base
     result.join(separator).html_safe
   end
 
- end
+end
 
 Issue.send(:include, TimeTrackerIssuePatch)

@@ -1,23 +1,19 @@
-function updateElementIfChanged(data) {
+ function updateElementIfChanged(data) {
     $('#time-tracker-menu').html(data);
 }
 
 function updateTimeTrackerMenu() {
-    var project_id = $('#time_tracker_info').data('project-id');
-    var issue_id = $('#time_tracker_info').data('issue-id');
     var path = $('div#time_tracker_info').data('time-trackers-path');
     if (path) {
-        $.get(path+'/render_menu', {
-            project_id:project_id,
-            issue_id:issue_id
-        }, updateElementIfChanged);
+//        $.get(path+'/render_menu', '',  updateElementIfChanged);
+        $.get(path+'/render_menu');
     }
 }
 
+
 //This script periodically updates the time tracker menu item to reflect any changes in the tracking state
 //Refresh rate is taken from settings. If settings is invalid, 60 secs is used. The minimum value is 5 secs.
-function runTimeTrackerUpdater() {
-    var refresh_rate = $('#time_tracker_info').data('refresh-rate');
+function runTimeTrackerUpdater(refresh_rate) {
     refresh_rate = parseInt(refresh_rate) || 60;
     setInterval(updateTimeTrackerMenu, refresh_rate * 1000);
 }
@@ -27,12 +23,6 @@ function renderMenu() {
     $('#time-tracker-menu').replaceWith(misplaced_menu_html.html());
     misplaced_menu_html.remove()
 }
-
-$(function () {
-    renderMenu();
-    updateTimeTrackerMenu();
-    runTimeTrackerUpdater();
-})
 
 // Used in Plugin Settings page to delete transition
 function deleteTransitionField(from_id) {
@@ -50,17 +40,29 @@ function addTransitionField() {
     elem.innerHTML= new_tag;
 }
 
-// Add contextual button to issue for starting task.
-$(document).ready( function() {
+$(function () {
+    renderMenu();
+
+    // Add contextual button to issue for starting task.
     var areas = $('div#content>div.contextual').find('a.icon-time-add');
-    var startButtonTemplate = $('a.time-tracker-start')[0];
-    if (startButtonTemplate) {
+    var actionButtons = $('span#tt-context-buttons')[0];
+    if (actionButtons) {
         for (ai = 0; ai < areas.length; ai++) {
             var area = areas[ai];
-            var startButton = startButtonTemplate.cloneNode(true);
-            startButton.style.display = 'inline';
-            $(startButton).insertBefore(area);
+            var aButtonsCopy = actionButtons.cloneNode(true);
+            aButtonsCopy.style.display = 'inline';
+            $(aButtonsCopy).insertBefore(area);
         }
     }
+/*
+    // Update embed menu if changed
+    $('#time-tracker-menu').bind("ajax:success", function(event, data, status, xhr) {
+        $('#time-tracker-menu').html(data);
+    });
+
+    $('#tt-context-buttons').bind("ajax:success", function(event, data, status, xhr) {
+        $('#time-tracker-menu').html(data);
+    });
+*/
 });
 

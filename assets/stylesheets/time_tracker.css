@@ -53,5 +53,4 @@
 
 #user-issues-list { height:300px; }
 
-span.time-tracker-not-running { background-color: red; }
-a.time-tracker-not-running { background-color: red; }
+span.time-tracker-not-running  { padding-bottom: 3px; border-bottom: 2px solid #FDBF3B; color: #A6750C; }
