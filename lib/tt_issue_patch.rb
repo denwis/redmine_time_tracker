@@ -43,8 +43,9 @@ class Issue < ActiveRecord::Base
   end
 
   def remote_call?(action)
-    #    ['suspend', 'stop'].include?(action)
-    ['stop'].include?(action)
+    # ['suspend', 'stop'].include?(action)
+     ['stop'].include?(action)
+#    false 
   end
 
   def time_trackers_buttons(separator ='<br>', labels = true, icon_class = '')

@@ -1,4 +1,4 @@
-require_dependency 'query'
+require_dependency 'issue_query'
 
 module TimeTrackerQueryPatch
   def self.included(base) # :nodoc:
@@ -40,7 +40,7 @@ module TimeTrackerQueryPatch
   end
 end
 
-class Query < ActiveRecord::Base
+class IssueQuery < Query
   # SQL
   def sql_for_spent_by_field(field, operator, value)
     db_table = TimeEntry.table_name
@@ -86,4 +86,4 @@ class Query < ActiveRecord::Base
 
 end
 
-Query.send(:include, TimeTrackerQueryPatch)
+IssueQuery.send(:include, TimeTrackerQueryPatch)

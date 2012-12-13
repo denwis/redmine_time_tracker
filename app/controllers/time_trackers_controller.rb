@@ -8,6 +8,8 @@ class TimeTrackersController < ApplicationController
   include IssuesHelper
   helper :time_trackers
   include TimeTrackersHelper
+  helper :timelog
+  include TimelogHelper
     
   unloadable
 
@@ -74,6 +76,11 @@ class TimeTrackersController < ApplicationController
   end
 
   def stop
+#    tt = User.current.time_tracker
+#    redirect_to :controller => 'issues', :action => 'edit', :id => tt.try(:issue_id), :time_entry => {:hours => tt.try(:hours_spent)}
+#    
+#    controller = IssuesController.new
+#    controller.update_issue_from_params
     if params[:issue] && params[:issue][:id].present?
       @issue = Issue.find(params[:issue][:id])
       # from IssueController.update_issue_from_params
@@ -116,9 +123,9 @@ class TimeTrackersController < ApplicationController
 
   def get_recent_issues_query
     # --------------- Issues -------------------
-    @query = Query.find(:first, :conditions => {:name => l(:time_tracker_query_name), :user_id => User.current.id})
+    @query = IssueQuery.find(:first, :conditions => {:name => l(:time_tracker_query_name), :user_id => User.current.id})
     if @query.nil?
-      @query = Query.new(:name => l(:time_tracker_query_name),
+      @query = IssueQuery.new(:name => l(:time_tracker_query_name),
         :project => nil,
         :user => User.current,
         :column_names => ["subject", "updated_on", 'time_trackers_buttons'],
@@ -165,4 +172,30 @@ class TimeTrackersController < ApplicationController
     @issue.save if have_changes;
   end
 
+  def update_issue_from_params
+    @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
+    @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
+    @time_entry.attributes = params[:time_entry]
+
+    @issue.init_journal(User.current)
+
+    issue_attributes = params[:issue]
+    if issue_attributes && params[:conflict_resolution]
+      case params[:conflict_resolution]
+      when 'overwrite'
+        issue_attributes = issue_attributes.dup
+        issue_attributes.delete(:lock_version)
+      when 'add_notes'
+        issue_attributes = issue_attributes.slice(:notes)
+      when 'cancel'
+        redirect_to issue_path(@issue)
+        return false
+      end
+    end
+    @issue.safe_attributes = issue_attributes
+    @priorities = IssuePriority.active
+    @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+    true
+  end
+  
 end

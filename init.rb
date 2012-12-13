@@ -1,6 +1,6 @@
 # encoding: utf-8
 require 'redmine'
-require_dependency 'time_tracker_hooks'
+require 'time_tracker_hooks'
 require 'tt_user_patch'
 require 'tt_query_patch'
 require 'tt_issue_patch'
