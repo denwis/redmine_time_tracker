@@ -19,17 +19,11 @@ class TimeTrackersController < ApplicationController
 
   def start
     @time_tracker = User.current.time_tracker
-    unless @time_tracker.nil?
-      spent = round_hours(@time_tracker.hours_spent)
-      unless spent.nil? || spent == 0
-        # save current time_tracker's spent hours automatically before switching to other task
-        @time_entry = TimeEntry.new(:issue => @time_tracker.issue, :project => @time_tracker.issue.project,
-          :user => @time_tracker.user, :spent_on => Time.now, :hours => spent)
-        @time_entry.save!
-      end
-      @time_tracker.destroy
+    if !@time_tracker.nil?
+      redirect_to :action => 'stop', :start_tracker => params[:issue_id]
+      return
     end
-    @issue = Issue.find(:first, :conditions => { :id => params[:issue_id] })
+    @issue = Issue.where(:id => params[:issue_id]).first
     @time_tracker = TimeTracker.new({ :issue_id => @issue.id })
     if @time_tracker.save
       apply_issue_changes_on_start 
@@ -75,12 +69,16 @@ class TimeTrackersController < ApplicationController
     end
   end
 
+#  def stop
+#    # simple version 
+#    time_tracker = User.current.time_tracker
+#    hours = time_tracker.try(:hours_spent)
+#    time_tracker.destroy unless time_tracker.nil?
+#    redirect_to :controller => 'issues', :action => 'edit', :id => time_tracker.try(:issue_id), :time_entry => {:hours => hours}
+#  end
+
   def stop
-#    tt = User.current.time_tracker
-#    redirect_to :controller => 'issues', :action => 'edit', :id => tt.try(:issue_id), :time_entry => {:hours => tt.try(:hours_spent)}
-#    
-#    controller = IssuesController.new
-#    controller.update_issue_from_params
+    @start_tracker = params[:start_tracker] if params[:start_tracker] && params[:start_tracker].present?
     if params[:issue] && params[:issue][:id].present?
       @issue = Issue.find(params[:issue][:id])
       # from IssueController.update_issue_from_params
@@ -90,7 +88,7 @@ class TimeTrackersController < ApplicationController
       @issue.save_issue_with_child_records(params, nil)
       time_tracker = User.current.time_tracker
       time_tracker.destroy unless time_tracker.nil?
-      if params[:start_tracker] && params[:start_tracker].present?
+      if @start_tracker
         redirect_to :action => :start, :issue_id => params[:start_tracker]
       else
         redirect_to :action => :index
@@ -98,8 +96,8 @@ class TimeTrackersController < ApplicationController
     else
       @time_tracker = User.current.time_tracker
       # -- Issue update form fields
-      @issue = Issue.find(:first, :conditions => { :id => @time_tracker.try(:issue_id) })
-      @project = Project.find(:first, :conditions => { :id => @issue.try(:project_id) })
+      @issue = Issue.where(:id => @time_tracker.try(:issue_id)).first
+      @project = Project.where(:id => @issue.try(:project_id)).first
       @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
       @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
       @time_entry.hours = round_hours(@time_tracker.hours_spent)
@@ -123,7 +121,7 @@ class TimeTrackersController < ApplicationController
 
   def get_recent_issues_query
     # --------------- Issues -------------------
-    @query = IssueQuery.find(:first, :conditions => {:name => l(:time_tracker_query_name), :user_id => User.current.id})
+    @query = IssueQuery.where(:name => l(:time_tracker_query_name), :user_id => User.current.id).first
     if @query.nil?
       @query = IssueQuery.new(:name => l(:time_tracker_query_name),
         :project => nil,
@@ -148,7 +146,7 @@ class TimeTrackersController < ApplicationController
     if (!User.current.admin? && User.current.allowed_to?("apply_issue_transition".to_sym, @issue.project) ||
           User.current.admin? && Setting.plugin_redmine_time_tracker['admin_issue_transition'] == '1') &&
         !Setting.plugin_redmine_time_tracker['status_transitions'].nil?
-      new_status = IssueStatus.find(:first, :conditions => {:id => Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]})
+      new_status = IssueStatus.where(:id => Setting.plugin_redmine_time_tracker['status_transitions'][@issue.status_id.to_s]).first
       if @issue.new_statuses_allowed_to(User.current).include?(new_status)
         @current_journal = @issue.init_journal(User.current, journal_note)
         @issue.status_id = new_status.id

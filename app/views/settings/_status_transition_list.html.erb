@@ -23,8 +23,8 @@
                 <% else %>
                     <% transitions.each do |from, to| %>
                         <tr class="<%=cycle('odd', 'even') %>">
-                            <% status_from =  IssueStatus.find(:first, :conditions => { :id => from }) %>
-                            <% status_to = IssueStatus.find(:first, :conditions => { :id => to }) %>
+                            <% status_from =  IssueStatus.find(from) %>
+                            <% status_to = IssueStatus.find(to) %>
                             <% if status_from.nil? or status_to.nil? %>
                                 <% has_zombie = true %>
                                 <td class="zombie icon icon-warning"></td>

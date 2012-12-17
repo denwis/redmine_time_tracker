@@ -1,4 +1,4 @@
-<%= labelled_form_for @issue, :url => time_trackers_stop_path, :remote => true, :html => {:id => 'issue-compact-form', :multipart => true} do |f| %>
+<%= labelled_form_for @issue, :url => time_trackers_stop_path, :html => {:id => 'issue-compact-form', :multipart => true} do |f| %>
   <%= error_messages_for 'issue', 'time_entry' %>
   <%= render :partial => 'conflict' if @conflict %>
   <% view_private = User.current.allowed_to?(:view_private_messages, @project) %>
@@ -12,7 +12,7 @@
             <p><%= time_entry.text_field :hours, :size => 6, :label => :label_spent_time %> <%= l(:field_hours) %></p>
           </div>
           <div class="splitcontentright">
-            <p><%= time_entry.select :activity_id, activity_collection_for_select_options %></p>
+            <p><%= time_entry.select :activity_id, activity_collection_for_select_options, {:required => true} %></p>
           </div>
         <% end %>
       </div>
@@ -44,7 +44,7 @@
   <%= f.hidden_field :id %>
   <%= hidden_field_tag 'last_journal_id', params[:last_journal_id] || @issue.last_journal_id %>
 
-  <%= hidden_field_tag "start_tracker","" %>
+  <%= hidden_field_tag "start_tracker", @start_tracker %>
 
   <p><%= submit_tag l(:button_submit) %>
     <%= link_to_if_authorized(l(:button_update), {:controller => 'issues', :action => 'edit', :id => @issue, :time_entry => { :hours => @time_entry.hours } }, :onclick => 'hideModal("ajax-modal");AndScrollTo("update", "notes"); return false;', :class => 'icon icon-edit', :accesskey => accesskey(:edit)) %>

@@ -44,7 +44,7 @@ class Issue < ActiveRecord::Base
 
   def remote_call?(action)
     # ['suspend', 'stop'].include?(action)
-     ['stop'].include?(action)
+     action = 'stop' || action = 'start' && !User.current.time_tracker.nil?
 #    false 
   end
 
