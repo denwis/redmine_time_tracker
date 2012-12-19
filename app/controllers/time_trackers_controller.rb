@@ -69,45 +69,62 @@ class TimeTrackersController < ApplicationController
     end
   end
 
-#  def stop
-#    # simple version 
-#    time_tracker = User.current.time_tracker
-#    hours = time_tracker.try(:hours_spent)
-#    time_tracker.destroy unless time_tracker.nil?
-#    redirect_to :controller => 'issues', :action => 'edit', :id => time_tracker.try(:issue_id), :time_entry => {:hours => hours}
-#  end
-
   def stop
-    @start_tracker = params[:start_tracker] if params[:start_tracker] && params[:start_tracker].present?
-    if params[:issue] && params[:issue][:id].present?
-      @issue = Issue.find(params[:issue][:id])
-      # from IssueController.update_issue_from_params
-      @notes = params[:notes] || (params[:issue].present? ? params[:issue][:notes] : nil)
-      @issue.init_journal(User.current, @notes)
-      @issue.safe_attributes = params[:issue]
-      @issue.save_issue_with_child_records(params, nil)
-      time_tracker = User.current.time_tracker
-      time_tracker.destroy unless time_tracker.nil?
-      if @start_tracker
-        redirect_to :action => :start, :issue_id => params[:start_tracker]
-      else
-        redirect_to :action => :index
-      end
-    else
-      @time_tracker = User.current.time_tracker
-      # -- Issue update form fields
-      @issue = Issue.where(:id => @time_tracker.try(:issue_id)).first
-      @project = Project.where(:id => @issue.try(:project_id)).first
-      @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
-      @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
-      @time_entry.hours = round_hours(@time_tracker.hours_spent)
-      @notes = ""
-      @issue.init_journal(User.current, @notes)
-      @priorities = IssuePriority.active
-      @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
-      get_recent_issues_query
-    end
+    # simple version 
+    time_tracker = User.current.time_tracker
+    hours = round_hours(time_tracker.try(:hours_spent))
+    time_tracker.destroy unless time_tracker.nil?
+    redirect_to :controller => 'issues', :action => 'edit', :id => time_tracker.try(:issue_id), :time_entry => {:hours => hours}
   end
+
+  #  def stop
+  #    @start_tracker = params[:start_tracker] if params[:start_tracker] && params[:start_tracker].present?
+  #    if !params[:issue] || !params[:issue][:id].present?
+  #      redirect_to :action => 'edit'
+  #    else
+  #      # Save changes 
+  #      @issue = Issue.find(params[:issue][:id]); @project = @issue.project
+  #      return unless update_issue_from_params
+  #      saved = false
+  #      begin
+  #        saved = @issue.save_issue_with_child_records(params, @time_entry)
+  #      rescue ActiveRecord::StaleObjectError
+  #        @conflict = true
+  #        if params[:last_journal_id]
+  #          @conflict_journals = @issue.journals_after(params[:last_journal_id]).all
+  #          @conflict_journals.reject!(&:private_notes?) unless User.current.allowed_to?(:view_private_notes, @issue.project)
+  #        end
+  #      end
+  #      if saved
+  #        flash[:notice] = l(:notice_successful_update) unless @issue.current_journal.new_record?
+  #        time_tracker = User.current.time_tracker
+  #        time_tracker.destroy unless time_tracker.nil?
+  #        if @start_tracker
+  #          redirect_to :action => :start, :issue_id => params[:start_tracker]
+  #        else
+  #          redirect_to :action => :index
+  #        end
+  #      else
+  #        redirect_to :action => 'edit' 
+  #      end        
+  #    end
+  #  end
+  #    
+  #def edit
+  #      # Prepare data for compact issue form
+  #      @time_tracker = User.current.time_tracker
+  #      # -- Issue update form fields
+  #      @issue = Issue.where(:id => @time_tracker.try(:issue_id)).first
+  #      @project = Project.where(:id => @issue.try(:project_id)).first
+  #      @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
+  #      @time_entry = TimeEntry.new(:issue => @issue, :project => @issue.project)
+  #      @time_entry.hours = round_hours(@time_tracker.hours_spent)
+  #      @notes = ""
+  #      @issue.init_journal(User.current, @notes)
+  #      @priorities = IssuePriority.active
+  #      @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+  #      get_recent_issues_query
+  #  end
 
   def render_menu
     # Show warning of stopped time tracker (change preference in plugin Settings

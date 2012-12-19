@@ -44,8 +44,8 @@ class Issue < ActiveRecord::Base
 
   def remote_call?(action)
     # ['suspend', 'stop'].include?(action)
-     action = 'stop' || action = 'start' && !User.current.time_tracker.nil?
-#    false 
+    # action = 'stop' || action = 'start' && !User.current.time_tracker.nil?
+    false 
   end
 
   def time_trackers_buttons(separator ='<br>', labels = true, icon_class = '')
